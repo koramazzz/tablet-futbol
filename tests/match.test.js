@@ -77,6 +77,25 @@ test('a kick pressed slightly early is still taken (input buffer)', () => {
   assert.ok(m.kicks >= 1);
 });
 
+test('a player carries the ball in front while running', () => {
+  const m = toPlay(newMatch());
+  const p = m.players[0];
+  Object.assign(p, { x: m.ball.x - p.r - m.ball.r - 2, y: m.ball.y });
+  run(m, 0.6, [{ x: 0, y: 1, kick: false }, IDLE]);
+  const hold = p.r + m.ball.r + CONFIG.dribble.controlGap;
+  assert.ok(Math.abs(m.ball.x - p.x) < 6, 'ball swung in front of the new direction');
+  assert.ok(Math.abs(m.ball.y - (p.y + hold)) < 6, 'ball stays at the feet');
+});
+
+test('a fast ball is not caught', () => {
+  const m = toPlay(newMatch());
+  const p = m.players[0];
+  const speed = CONFIG.dribble.maxCatchSpeed * 1.5;
+  rollBall(m, p.x, p.y - p.r - m.ball.r - CONFIG.dribble.controlReach / 2, speed, 0);
+  run(m, 0.2);
+  assert.ok(m.ballDistance(p) > p.r + m.ball.r + CONFIG.dribble.controlReach);
+});
+
 test('ball entering the right goal scores for team 0', () => {
   const m = toPlay(newMatch());
   parkKeepers(m);

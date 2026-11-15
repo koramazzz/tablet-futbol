@@ -4,7 +4,7 @@ export const CONFIG = Object.freeze({
   keeper: { r: 25, speed: 135, lineOffset: 38, kickPower: 560, kickSpread: 260, cooldown: 0.6, touchSlack: 4, mouthInset: 0.6 },
   ball: { r: 12, keepPerSecond: 0.5, maxSpeed: 1100, wallBounce: 0.7, netBounce: 0.25, bodyBounce: 0.5 },
   kick: { power: 760, reach: 22, cooldown: 0.25, buffer: 0.15, aimWeight: 0.75 },
-  dribble: { push: 1.2, minPush: 70 },
+  dribble: { push: 1.2, minPush: 70, controlReach: 14, controlGap: 3, pullRate: 14, maxCatchSpeed: 520 },
   match: { durations: [2, 3, 5], defaultDuration: 3, countdown: 3, restartCountdown: 2, goalPause: 2.2 },
   physicsStep: 1 / 120,
   maxFrameDt: 0.05,

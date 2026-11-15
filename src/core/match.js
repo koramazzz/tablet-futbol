@@ -79,6 +79,7 @@ export class Match {
     pushApart(players[0], players[1], 0.5);
     players.forEach(p => keepers.forEach(k => pushApart(p, k, 1)));
     players.forEach(p => { this.tryKick(p); this.collideBall(p); });
+    this.controlBall();
     keepers.forEach((k, t) => { this.keeperKick(k, t); this.collideBall(k); });
     this.moveBall(h);
     if (this.phase === 'play') this.checkGoal();
@@ -154,6 +155,24 @@ export class Match {
       b.vx += (wanted - ballN) * nx;
       b.vy += (wanted - ballN) * ny;
     }
+  }
+
+  /** The nearest player close to a slow enough ball carries it at their feet, in front of them. */
+  controlBall() {
+    const b = this.ball, cfg = CONFIG.dribble;
+    const canControl = (p) => p.cooldown <= 0
+      && this.ballDistance(p) <= p.r + b.r + cfg.controlReach
+      && Math.hypot(b.vx - p.vx, b.vy - p.vy) <= cfg.maxCatchSpeed;
+    const [owner] = this.players.filter(canControl).sort((p, q) => this.ballDistance(p) - this.ballDistance(q));
+    if (!owner) return;
+    const hold = owner.r + b.r + cfg.controlGap;
+    const [pullX, pullY] = clampMagnitude(
+      (owner.x + owner.fx * hold - b.x) * cfg.pullRate,
+      (owner.y + owner.fy * hold - b.y) * cfg.pullRate,
+      cfg.maxCatchSpeed,
+    );
+    b.vx = owner.vx + pullX;
+    b.vy = owner.vy + pullY;
   }
 
   moveBall(h) {
