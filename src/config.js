@@ -1,7 +1,7 @@
 export const CONFIG = Object.freeze({
   field: { w: 1000, h: 600, goalH: 240, goalDepth: 42, border: 34, boxW: 150, boxH: 340, circleR: 85, stripes: 10, netCell: 12 },
   player: { r: 30, speed: 340, accel: 12, facingDeadzone: 0.25, kickoffX: [0.3, 0.7] },
-  keeper: { r: 28, speed: 110, lineOffset: 38, kickPower: 560, kickSpread: 260, cooldown: 0.6, touchSlack: 4, mouthInset: 0.6 },
+  keeper: { r: 24, speed: 110, lineOffset: 38, kickPower: 560, kickSpread: 260, cooldown: 0.6, touchSlack: 4, mouthInset: 0.6 },
   ball: { r: 15, keepPerSecond: 0.5, maxSpeed: 1250, wallBounce: 0.7, netBounce: 0.25, bodyBounce: 0.5 },
   kick: { minPower: 420, maxPower: 1150, chargeTime: 0.7, reach: 26, cooldown: 0.3, buffer: 0.15, aimWeight: 0.75 },
   dribble: { push: 1.2, minPush: 70, controlReach: 26, controlGap: 3, pullRate: 22, maxCatchSpeed: 750 },
