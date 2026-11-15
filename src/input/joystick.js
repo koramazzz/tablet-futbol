@@ -6,7 +6,6 @@ export class Joystick {
   constructor(zone, home) {
     this.zone = zone;
     this.home = home;
-    this.priority = 0;
     this.reset();
   }
 

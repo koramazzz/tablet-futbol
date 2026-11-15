@@ -1,20 +1,15 @@
 import { CONFIG } from '../config.js';
 
-const HIT_SLACK = 1.2;
-
-/** Round on-screen button; each press yields one kick on the next read. */
+/** A touch zone marked by a round button; each press anywhere in the zone yields one kick on the next read. */
 export class KickButton {
-  constructor(center) {
+  constructor(zone, center) {
+    this.zone = zone;
     this.center = center;
-    this.priority = 1;
     this.pressed = false;
     this.pending = false;
   }
 
-  claims(x, y) {
-    const [cx, cy] = this.center();
-    return Math.hypot(x - cx, y - cy) <= CONFIG.touch.kickRadius * HIT_SLACK;
-  }
+  claims(x, y) { return this.zone(x, y); }
 
   down() {
     this.pressed = true;

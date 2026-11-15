@@ -9,7 +9,7 @@ export class PointerRouter {
     };
     canvas.addEventListener('pointerdown', (e) => {
       const [x, y] = pos(e);
-      const control = this.byPriority().find(c => c.claims(x, y));
+      const control = this.controls.find(c => c.claims(x, y));
       if (!control) return;
       e.preventDefault();
       try { canvas.setPointerCapture(e.pointerId); } catch { /* capture is optional */ }
@@ -23,10 +23,6 @@ export class PointerRouter {
     };
     canvas.addEventListener('pointerup', end);
     canvas.addEventListener('pointercancel', end);
-  }
-
-  byPriority() {
-    return [...this.controls].sort((a, b) => b.priority - a.priority);
   }
 
   setControls(list) {
