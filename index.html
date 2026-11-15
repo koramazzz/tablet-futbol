@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0b3d1f">
+<title>Tablet Futbol</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
+</head>
+<body>
+<canvas id="pitch"></canvas>
+<button id="btn-pause" aria-label="Menü">☰</button>
+<div id="rotate-hint"><span>📱↻</span>Tableti yan çevir</div>
+
+<section class="screen on" id="scr-menu"><div class="card">
+  <h1>⚽ Tablet Futbol</h1>
+  <div class="label">Adın</div>
+  <input type="text" id="in-name" maxlength="12" autocomplete="off">
+  <div class="label">Forma rengin</div>
+  <div class="row" id="colors"></div>
+  <div class="label">Maç süresi</div>
+  <div class="row" id="durations"></div>
+  <button class="big" id="btn-host">🏟️ Oda Kur</button>
+  <button class="big blue" id="btn-join">🔑 Odaya Katıl</button>
+  <button class="big orange" id="btn-local">👫 Aynı Tablette Oyna</button>
+  <div class="status" id="net-status">Online bağlantı kontrol ediliyor…</div>
+</div></section>
+
+<section class="screen" id="scr-join"><div class="card">
+  <h2>Oda kodunu gir</h2>
+  <div class="code" id="join-code">____</div>
+  <div class="keypad" id="keypad"></div>
+  <button class="big blue" id="btn-join-go" disabled>Katıl</button>
+  <button class="big gray" data-action="menu">Geri</button>
+</div></section>
+
+<section class="screen" id="scr-wait"><div class="card">
+  <h2>Oda kodun</h2>
+  <div class="code" id="host-code"></div>
+  <p>Kardeşin kendi tabletinde <b>Odaya Katıl</b>'a basıp bu kodu girsin.</p>
+  <button class="big gray" data-action="menu">İptal</button>
+</div></section>
+
+<section class="screen" id="scr-connect"><div class="card">
+  <h2 id="connect-text">Bağlanıyor…</h2>
+  <button class="big gray" data-action="menu">İptal</button>
+</div></section>
+
+<section class="screen" id="scr-error"><div class="card">
+  <h2>Hay aksi!</h2>
+  <p id="error-text"></p>
+  <button class="big" data-action="menu">Tamam</button>
+</div></section>
+
+<section class="screen" id="scr-pause"><div class="card">
+  <h2>Mola</h2>
+  <button class="big" id="btn-resume">▶️ Devam</button>
+  <button class="big gray" data-action="menu">🏠 Ana Menü</button>
+</div></section>
+
+<section class="screen" id="scr-end"><div class="card">
+  <h1 id="end-title"></h1>
+  <p id="end-score"></p>
+  <button class="big" id="btn-rematch">🔁 Rövanş</button>
+  <button class="big gray" data-action="menu">🏠 Ana Menü</button>
+</div></section>
+
+<script src="vendor/peerjs.min.js"></script>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
