@@ -4,13 +4,14 @@ import { CONFIG } from '../src/config.js';
 import { EffectWatcher } from '../src/audio/effect-watcher.js';
 import { Charge } from '../src/input/charge.js';
 import { Controller } from '../src/input/controller.js';
+import { DashButton } from '../src/input/dash-button.js';
 import { KeyboardSource } from '../src/input/keyboard-source.js';
 import { KickButton } from '../src/input/kick-button.js';
 import { Confetti } from '../src/render/confetti.js';
 import { Smoother } from '../src/render/smoother.js';
 import { Profile } from '../src/ui/profile.js';
 
-const source = (x, y, kick = null) => ({ read: () => ({ x, y, kick }) });
+const source = (x, y, kick = null, dash = false) => ({ read: () => ({ x, y, kick, dash }) });
 const state = (overrides = {}) => ({ ph: 'play', sc: [0, 0], kc: 0, b: [0, 0], p: [[0, 0, 1, 0], [10, 0, -1, 0]], g: [[0, 0], [0, 0]], ...overrides });
 
 test('Controller merges sources and limits the stick to length 1', () => {
@@ -48,7 +49,9 @@ test('KeyboardSource reads held keys and shoots on release with the charged powe
   const press = (type, code, repeat = false) => target.dispatchEvent(Object.assign(new Event(type), { code, repeat }));
   press('keydown', 'KeyD');
   press('keydown', 'Space');
-  assert.deepEqual(keys.read(), { x: 1, y: 0, kick: null });
+  press('keydown', 'ShiftLeft');
+  assert.deepEqual(keys.read(), { x: 1, y: 0, kick: null, dash: true });
+  assert.equal(keys.read().dash, false);
   clock.ms = CHARGE_MS / 2;
   press('keydown', 'Space', true);
   press('keyup', 'Space');
@@ -69,6 +72,20 @@ test('KickButton charges while held and kicks once on release', () => {
   button.up();
   assert.equal(button.read().kick, 1);
   assert.equal(button.read().kick, null);
+});
+
+test('DashButton yields one dash per press inside its circle', () => {
+  const button = new DashButton(() => [100, 100]);
+  assert.equal(button.claims(100 + CONFIG.touch.dashRadius + 1, 100), false);
+  assert.equal(button.claims(100, 100), true);
+  button.down();
+  assert.equal(button.read().dash, true);
+  assert.equal(button.read().dash, false);
+});
+
+test('Controller passes a dash from any source', () => {
+  assert.equal(new Controller([source(0, 0), source(0, 0, null, true)]).read().dash, true);
+  assert.equal(new Controller([source(0, 0)]).read().dash, false);
 });
 
 test('Smoother passes through when rate is infinite', () => {

@@ -68,7 +68,7 @@ export class Match {
     const steps = Math.ceil(dt / CONFIG.physicsStep);
     const h = dt / steps;
     for (let i = 0; i < steps; i++) {
-      this.step(h, inputs.map(inp => ({ ...inp, kick: i === 0 ? inp.kick : null })));
+      this.step(h, inputs.map(inp => (i === 0 ? inp : { ...inp, kick: null, dash: false })));
     }
   }
 
@@ -89,6 +89,7 @@ export class Match {
     const cfg = CONFIG.player, { w, h: H } = CONFIG.field;
     if (Math.hypot(input.x, input.y) > cfg.facingDeadzone) [p.fx, p.fy] = unit(input.x, input.y);
     if (input.kick !== null) this.pressKick(p, input.kick);
+    if (input.dash) this.startDash(p);
     const dashing = p.dashTime > 0;
     const speed = dashing ? cfg.speed * CONFIG.dash.boost : cfg.speed;
     const [dx, dy] = dashing ? [p.fx, p.fy] : [input.x, input.y];
@@ -103,11 +104,15 @@ export class Match {
     p.dashCooldown -= h;
   }
 
-  /** A kick of the given power (0 to 1) shoots when the ball is in reach; otherwise it starts a short dash. */
+  /** Remembers a kick of the given power (0 to 1) briefly, so it is taken once the ball is in reach. */
   pressKick(p, power) {
     p.kickBuffer = CONFIG.kick.buffer;
     p.kickPower = clamp(power, 0, 1);
-    if (p.dashCooldown > 0 || this.inKickReach(p)) return;
+  }
+
+  /** Starts a short burst of speed in the facing direction, unless one was used too recently. */
+  startDash(p) {
+    if (p.dashCooldown > 0) return;
     const speed = CONFIG.player.speed * CONFIG.dash.boost;
     p.dashTime = CONFIG.dash.duration;
     p.dashCooldown = CONFIG.dash.cooldown;
