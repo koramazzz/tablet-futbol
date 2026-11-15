@@ -23,6 +23,7 @@ button.big { display:block; width:100%; margin-top:12px; font:inherit; font-size
 button.big:active { transform:translateY(4px); box-shadow:0 2px 0 rgba(0,0,0,.25); }
 button.big.blue { background:var(--accent2); }
 button.big.orange { background:var(--warn); }
+button.big.purple { background:#9333ea; }
 button.big.gray { background:#64748b; }
 button.big:disabled { opacity:.45; }
 .status { font-size:15px; color:#475569; margin-top:10px; }

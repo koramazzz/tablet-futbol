@@ -6,12 +6,20 @@ export const CONFIG = Object.freeze({
   kick: { power: 900, reach: 26, cooldown: 0.3, buffer: 0.15, aimWeight: 0.75 },
   dribble: { push: 1.2, minPush: 70, controlReach: 26, controlGap: 3, pullRate: 22, maxCatchSpeed: 750 },
   dash: { boost: 1.9, duration: 0.22, cooldown: 0.9 },
+  bot: {
+    approachOffset: 30, detour: 70, dashDistance: 180, cornerMargin: 45,
+    levels: [
+      { id: 'easy', label: '🐢 Kolay', speed: 0.55, think: 0.4, shootRange: 240, aimError: 110, dashChance: 0 },
+      { id: 'medium', label: '🦊 Orta', speed: 0.75, think: 0.22, shootRange: 240, aimError: 60, dashChance: 0.1 },
+      { id: 'hard', label: '🦁 Zor', speed: 0.95, think: 0.1, shootRange: 240, aimError: 15, dashChance: 0.3 },
+    ],
+  },
   match: { durations: [2, 3, 5], defaultDuration: 3, countdown: 3, restartCountdown: 2, goalPause: 2.2 },
   physicsStep: 1 / 120,
   maxFrameDt: 0.05,
   net: { codeLength: 4, idPrefix: 'tablet-futbol-v1-', protocol: 1, sendRate: 60, joinTimeout: 10, hostAttempts: 5 },
   view: { hudHeight: 64, smoothing: 28, snapDistance: 160, maxDpr: 2 },
-  touch: { joyRadius: 52, knobRadius: 28, kickRadius: 66, inset: 105, deadzone: 0.12, onlineSplit: 0.5, localSplit: 0.32, localKickSplit: 0.5 },
+  touch: { joyRadius: 52, knobRadius: 28, kickRadius: 66, inset: 105, deadzone: 0.12, singleSplit: 0.5, localSplit: 0.32, localKickSplit: 0.5 },
   keys: [
     { up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD', kick: 'Space' },
     { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', kick: 'Enter' },
@@ -31,7 +39,7 @@ export const CONFIG = Object.freeze({
   text: {
     goal: 'GOOOL!', draw: 'Berabere! 🤝', win: '🏆 {name} kazandı!',
     waitingGuest: 'Kardeşin bekleniyor… (bağlantı koptu)', starting: 'Oyun başlıyor…',
-    kick: 'ŞUT', rematchAsked: 'Rövanş istendi ✓', rematch: '🔁 Rövanş',
+    kick: 'ŞUT', botName: 'Bilgisayar', rematchAsked: 'Rövanş istendi ✓', rematch: '🔁 Rövanş',
     netReady: 'Online oyun hazır ✓',
     netOff: 'Online bağlantı yüklenemedi — aynı tablette oynayabilirsiniz.',
     notFound: 'Bu kodla bir oda bulunamadı. Kodu kontrol edip tekrar dene.',

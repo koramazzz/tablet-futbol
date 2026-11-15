@@ -7,9 +7,9 @@ import { KickButton } from './kick-button.js';
  * zones never overlap, so a finger anywhere in a zone works.
  */
 const LAYOUTS = {
-  online: (view, t, hud) => [{
-    stickZone: (x, y) => y > hud && x < view.W * t.onlineSplit,
-    kickZone: (x, y) => y > hud && x >= view.W * t.onlineSplit,
+  single: (view, t, hud) => [{
+    stickZone: (x, y) => y > hud && x < view.W * t.singleSplit,
+    kickZone: (x, y) => y > hud && x >= view.W * t.singleSplit,
     stickHome: () => [t.inset, view.H - t.inset],
     kickHome: () => [view.W - t.inset, view.H - t.inset],
   }],

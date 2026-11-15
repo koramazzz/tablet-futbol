@@ -14,6 +14,7 @@ export class UI {
     this.current = 'menu';
     this.buildMenu();
     this.buildKeypad();
+    this.buildLevels();
     this.bind();
   }
 
@@ -53,6 +54,16 @@ export class UI {
       pick: m => { p.minutes = m; },
       className: 'chip',
     });
+  }
+
+  buildLevels() {
+    $('levels').replaceChildren(...CONFIG.bot.levels.map(level => {
+      const b = document.createElement('button');
+      b.className = 'big purple';
+      b.textContent = level.label;
+      b.addEventListener('click', () => this.app.startSolo(level));
+      return b;
+    }));
   }
 
   buildKeypad() {
@@ -111,6 +122,7 @@ export class UI {
     const withGesture = (fn) => () => { app.onGesture(); fn(); };
     $('btn-host').addEventListener('click', withGesture(() => app.startHost()));
     $('btn-local').addEventListener('click', withGesture(() => app.startLocal()));
+    $('btn-solo').addEventListener('click', withGesture(() => this.show('solo')));
     $('btn-join').addEventListener('click', withGesture(() => { this.joinDigits = ''; this.renderJoinCode(); this.show('join'); }));
     $('btn-join-go').addEventListener('click', () => app.startGuest(this.joinDigits));
     $('btn-pause').addEventListener('click', () => { app.setPaused(true); this.show('pause'); });

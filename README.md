@@ -15,6 +15,7 @@ Kurulum, hesap ya da sunucu gerekmez: GitHub Pages'te çalışan statik bir web 
 - Her iki tablette de kendi kalen solda görünür; hep sağa doğru hücum edersin.
 - Her takımın otomatik bir kalecisi vardır.
 - **Aynı Tablette Oyna**: iki kişi tek tabletin iki ucundan oynar.
+- **Tek Kişilik**: bilgisayara karşı oynanır; Kolay, Orta ve Zor seviyeleri vardır.
 - Bilgisayarda: WASD + Boşluk (1. oyuncu), yön tuşları + Enter (2. oyuncu).
 
 ## Nasıl çalışır
@@ -30,12 +31,12 @@ index.html          sayfa ve ekranlar
 css/style.css
 src/
   config.js         tüm ayarlar ve metinler
-  core/             maç simülasyonu (DOM'suz, test edilebilir)
+  core/             maç simülasyonu ve bilgisayar rakip (DOM'suz, test edilebilir)
   input/            dokunmatik joystick, şut düğmesi, klavye
   render/           canvas çizimi ve yumuşatma
   audio/            sentezlenmiş ses efektleri
   net/              PeerJS bağlantısı
-  sessions/         yerel / oda kuran / katılan oyun oturumları
+  sessions/         yerel / tek kişilik / oda kuran / katılan oyun oturumları
   ui/               menü ekranları ve profil
   app.js, main.js   oyun döngüsü ve giriş noktası
 vendor/             PeerJS 1.5.5 (MIT)

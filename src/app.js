@@ -12,6 +12,7 @@ import { Smoother } from './render/smoother.js';
 import { GuestSession } from './sessions/guest-session.js';
 import { HostSession } from './sessions/host-session.js';
 import { LocalSession } from './sessions/local-session.js';
+import { SoloSession } from './sessions/solo-session.js';
 import { UI } from './ui/ui.js';
 
 const MS_PER_SECOND = 1000;
@@ -72,12 +73,17 @@ export class App {
     this.begin(new LocalSession(this.ui.readProfile(), controllers));
   }
 
+  startSolo(level) {
+    const [pad] = buildTouchPads('single', this.renderer);
+    this.begin(new SoloSession(this.ui.readProfile(), this.controllerFor(pad, CONFIG.keys), level));
+  }
+
   async startHost() {
     this.ui.showConnecting(CONFIG.text.creating);
     try {
       const { link, code } = await PeerLink.host();
       if (this.ui.current !== 'connect') { link.close(); return; }
-      const [pad] = buildTouchPads('online', this.renderer);
+      const [pad] = buildTouchPads('single', this.renderer);
       this.begin(new HostSession(link, this.ui.readProfile(), this.controllerFor(pad, CONFIG.keys)));
       this.ui.showWait(code);
     } catch {
@@ -90,7 +96,7 @@ export class App {
     try {
       const link = await PeerLink.join(code);
       if (this.ui.current !== 'connect') { link.close(); return; }
-      const [pad] = buildTouchPads('online', this.renderer);
+      const [pad] = buildTouchPads('single', this.renderer);
       this.begin(new GuestSession(link, this.ui.readProfile(), this.controllerFor(pad, CONFIG.keys, true)));
       this.ui.showConnecting(CONFIG.text.starting);
     } catch (err) {
