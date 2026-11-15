@@ -133,6 +133,18 @@ test('ball hitting the end line outside the goal bounces back', () => {
   assert.deepEqual(m.score, [0, 0]);
 });
 
+test('pushing the ball into a corner never scores', () => {
+  for (const [dirX, dirY] of [[1, -1], [1, 1], [1, 0.2]]) {
+    const m = toPlay(newMatch());
+    const cornerY = dirY < 0 ? 0 : h;
+    Object.assign(m.players[0], { x: w - 90, y: cornerY - dirY * 70 });
+    rollBall(m, w - 45, cornerY - dirY * 35, 0, 0);
+    run(m, 2, [{ x: dirX, y: dirY, kick: false }, IDLE]);
+    assert.deepEqual(m.score, [0, 0]);
+    assert.ok(m.ball.x <= w, 'ball stays on the pitch');
+  }
+});
+
 test('ball bounces off the side lines', () => {
   const m = toPlay(newMatch());
   rollBall(m, w / 2, 30, 0, -900);

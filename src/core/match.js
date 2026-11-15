@@ -203,7 +203,8 @@ export class Match {
     b.y += b.vy * h;
 
     const top = f.h / 2 - f.goalH / 2 + r, bottom = f.h / 2 + f.goalH / 2 - r;
-    if (b.x < 0 || b.x > f.w) {
+    const betweenPosts = b.y > top - r && b.y < bottom + r;
+    if (betweenPosts && (b.x < 0 || b.x > f.w)) {
       this.bounceInsideNet(top, bottom);
       return;
     }
