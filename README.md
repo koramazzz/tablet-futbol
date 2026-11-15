@@ -12,6 +12,7 @@ Kurulum, hesap ya da sunucu gerekmez: GitHub Pages'te çalışan statik bir web 
 
 - Ekranın sol yarısına dokunup kaydırınca oyuncu hareket eder. Top, yanına gelen oyuncunun ayağına yapışır.
 - Ekranın sağ yarısına dokunmak **ŞUT**: top ayağındaysa baktığın yöne vurur, değilse kısa bir atılma yapar.
+  Kısa dokunuş hafif pas, basılı tutup bırakmak sert şuttur; düğmenin etrafındaki halka gücü gösterir.
 - Her iki tablette de kendi kalen solda görünür; hep sağa doğru hücum edersin.
 - Her takımın otomatik bir kalecisi vardır.
 - **Aynı Tablette Oyna**: iki kişi tek tabletin iki ucundan oynar.

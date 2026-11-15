@@ -4,7 +4,7 @@ import { clamp, clampMagnitude, round, unit } from './utils.js';
 export const keeperLineX = (team) => (team === 0 ? CONFIG.keeper.lineOffset : CONFIG.field.w - CONFIG.keeper.lineOffset);
 export const attackDir = (team) => (team === 0 ? 1 : -1);
 
-const makeBody = (x, y, r, fx) => ({ x, y, r, vx: 0, vy: 0, fx, fy: 0, cooldown: 0, kickBuffer: 0, dashTime: 0, dashCooldown: 0 });
+const makeBody = (x, y, r, fx) => ({ x, y, r, vx: 0, vy: 0, fx, fy: 0, cooldown: 0, kickBuffer: 0, kickPower: 0, dashTime: 0, dashCooldown: 0 });
 
 function pushApart(a, b, shareA) {
   const dx = a.x - b.x, dy = a.y - b.y, d = Math.hypot(dx, dy), min = a.r + b.r;
@@ -68,7 +68,7 @@ export class Match {
     const steps = Math.ceil(dt / CONFIG.physicsStep);
     const h = dt / steps;
     for (let i = 0; i < steps; i++) {
-      this.step(h, inputs.map(inp => ({ ...inp, kick: inp.kick && i === 0 })));
+      this.step(h, inputs.map(inp => ({ ...inp, kick: i === 0 ? inp.kick : null })));
     }
   }
 
@@ -88,7 +88,7 @@ export class Match {
   movePlayer(p, input, h) {
     const cfg = CONFIG.player, { w, h: H } = CONFIG.field;
     if (Math.hypot(input.x, input.y) > cfg.facingDeadzone) [p.fx, p.fy] = unit(input.x, input.y);
-    if (input.kick) this.pressKick(p);
+    if (input.kick !== null) this.pressKick(p, input.kick);
     const dashing = p.dashTime > 0;
     const speed = dashing ? cfg.speed * CONFIG.dash.boost : cfg.speed;
     const [dx, dy] = dashing ? [p.fx, p.fy] : [input.x, input.y];
@@ -103,9 +103,10 @@ export class Match {
     p.dashCooldown -= h;
   }
 
-  /** The kick button shoots when the ball is in reach; otherwise it starts a short dash. */
-  pressKick(p) {
+  /** A kick of the given power (0 to 1) shoots when the ball is in reach; otherwise it starts a short dash. */
+  pressKick(p, power) {
     p.kickBuffer = CONFIG.kick.buffer;
+    p.kickPower = clamp(power, 0, 1);
     if (p.dashCooldown > 0 || this.inKickReach(p)) return;
     const speed = CONFIG.player.speed * CONFIG.dash.boost;
     p.dashTime = CONFIG.dash.duration;
@@ -141,7 +142,7 @@ export class Match {
     const [tx, ty] = unit(b.x - p.x, b.y - p.y);
     const aim = cfg.aimWeight;
     const [dx, dy] = unit(p.fx * aim + tx * (1 - aim), p.fy * aim + ty * (1 - aim));
-    this.launchBall(dx, dy, cfg.power);
+    this.launchBall(dx, dy, cfg.minPower + (cfg.maxPower - cfg.minPower) * p.kickPower);
     p.cooldown = cfg.cooldown;
     p.kickBuffer = 0;
   }

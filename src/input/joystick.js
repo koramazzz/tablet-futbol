@@ -31,7 +31,7 @@ export class Joystick {
 
   up() { this.reset(); }
 
-  read() { return { x: this.vec[0], y: this.vec[1], kick: false }; }
+  read() { return { x: this.vec[0], y: this.vec[1], kick: null }; }
 
   draw(ctx) {
     const { joyRadius, knobRadius } = CONFIG.touch;
