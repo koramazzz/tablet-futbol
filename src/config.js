@@ -5,6 +5,7 @@ export const CONFIG = Object.freeze({
   ball: { r: 12, keepPerSecond: 0.5, maxSpeed: 1100, wallBounce: 0.7, netBounce: 0.25, bodyBounce: 0.5 },
   kick: { power: 760, reach: 22, cooldown: 0.25, buffer: 0.15, aimWeight: 0.75 },
   dribble: { push: 1.2, minPush: 70, controlReach: 14, controlGap: 3, pullRate: 14, maxCatchSpeed: 520 },
+  dash: { boost: 1.9, duration: 0.22, cooldown: 0.9 },
   match: { durations: [2, 3, 5], defaultDuration: 3, countdown: 3, restartCountdown: 2, goalPause: 2.2 },
   physicsStep: 1 / 120,
   maxFrameDt: 0.05,

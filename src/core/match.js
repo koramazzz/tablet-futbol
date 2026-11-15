@@ -4,7 +4,7 @@ import { clamp, clampMagnitude, round, unit } from './utils.js';
 export const keeperLineX = (team) => (team === 0 ? CONFIG.keeper.lineOffset : CONFIG.field.w - CONFIG.keeper.lineOffset);
 export const attackDir = (team) => (team === 0 ? 1 : -1);
 
-const makeBody = (x, y, r, fx) => ({ x, y, r, vx: 0, vy: 0, fx, fy: 0, cooldown: 0, kickBuffer: 0 });
+const makeBody = (x, y, r, fx) => ({ x, y, r, vx: 0, vy: 0, fx, fy: 0, cooldown: 0, kickBuffer: 0, dashTime: 0, dashCooldown: 0 });
 
 function pushApart(a, b, shareA) {
   const dx = a.x - b.x, dy = a.y - b.y, d = Math.hypot(dx, dy), min = a.r + b.r;
@@ -87,15 +87,35 @@ export class Match {
 
   movePlayer(p, input, h) {
     const cfg = CONFIG.player, { w, h: H } = CONFIG.field;
+    if (Math.hypot(input.x, input.y) > cfg.facingDeadzone) [p.fx, p.fy] = unit(input.x, input.y);
+    if (input.kick) this.pressKick(p);
+    const dashing = p.dashTime > 0;
+    const speed = dashing ? cfg.speed * CONFIG.dash.boost : cfg.speed;
+    const [dx, dy] = dashing ? [p.fx, p.fy] : [input.x, input.y];
     const k = Math.min(1, cfg.accel * h);
-    p.vx += (input.x * cfg.speed - p.vx) * k;
-    p.vy += (input.y * cfg.speed - p.vy) * k;
+    p.vx += (dx * speed - p.vx) * k;
+    p.vy += (dy * speed - p.vy) * k;
     p.x = clamp(p.x + p.vx * h, p.r, w - p.r);
     p.y = clamp(p.y + p.vy * h, p.r, H - p.r);
-    if (Math.hypot(input.x, input.y) > cfg.facingDeadzone) [p.fx, p.fy] = unit(input.x, input.y);
-    if (input.kick) p.kickBuffer = CONFIG.kick.buffer;
     p.kickBuffer -= h;
     p.cooldown -= h;
+    p.dashTime -= h;
+    p.dashCooldown -= h;
+  }
+
+  /** The kick button shoots when the ball is in reach; otherwise it starts a short dash. */
+  pressKick(p) {
+    p.kickBuffer = CONFIG.kick.buffer;
+    if (p.dashCooldown > 0 || this.inKickReach(p)) return;
+    const speed = CONFIG.player.speed * CONFIG.dash.boost;
+    p.dashTime = CONFIG.dash.duration;
+    p.dashCooldown = CONFIG.dash.cooldown;
+    p.vx = p.fx * speed;
+    p.vy = p.fy * speed;
+  }
+
+  inKickReach(p) {
+    return this.ballDistance(p) <= p.r + this.ball.r + CONFIG.kick.reach;
   }
 
   moveKeeper(k, team, h) {
@@ -117,7 +137,7 @@ export class Match {
 
   tryKick(p) {
     const b = this.ball, cfg = CONFIG.kick;
-    if (p.kickBuffer <= 0 || p.cooldown > 0 || this.ballDistance(p) > p.r + b.r + cfg.reach) return;
+    if (p.kickBuffer <= 0 || p.cooldown > 0 || !this.inKickReach(p)) return;
     const [tx, ty] = unit(b.x - p.x, b.y - p.y);
     const aim = cfg.aimWeight;
     const [dx, dy] = unit(p.fx * aim + tx * (1 - aim), p.fy * aim + ty * (1 - aim));

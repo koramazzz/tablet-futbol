@@ -68,6 +68,17 @@ test('kicking far from the ball does nothing', () => {
   assert.equal(m.kicks, kicks);
 });
 
+test('kicking away from the ball starts a dash, limited by a cooldown', () => {
+  const m = toPlay(newMatch());
+  const p = m.players[1];
+  const dashSpeed = CONFIG.player.speed * CONFIG.dash.boost;
+  m.advance(FRAME, [IDLE, { x: 0, y: 0, kick: true }]);
+  assert.ok(Math.abs(p.vx) > CONFIG.player.speed, 'faster than running');
+  run(m, CONFIG.dash.duration * 2);
+  m.advance(FRAME, [IDLE, { x: 0, y: 0, kick: true }]);
+  assert.ok(Math.abs(p.vx) < dashSpeed * 0.5, 'second dash is blocked by the cooldown');
+});
+
 test('a kick pressed slightly early is still taken (input buffer)', () => {
   const m = toPlay(newMatch());
   const p = m.players[0];
