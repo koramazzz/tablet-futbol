@@ -181,13 +181,19 @@ export class Match {
     }
   }
 
-  /** The nearest player close to a slow enough ball carries it at their feet, in front of them. */
-  controlBall() {
+  /** The player carrying the ball: the nearest one close to a slow enough ball, if any. */
+  ballOwner() {
     const b = this.ball, cfg = CONFIG.dribble;
     const canControl = (p) => p.cooldown <= 0
       && this.ballDistance(p) <= p.r + b.r + cfg.controlReach
       && Math.hypot(b.vx - p.vx, b.vy - p.vy) <= cfg.maxCatchSpeed;
     const [owner] = this.players.filter(canControl).sort((p, q) => this.ballDistance(p) - this.ballDistance(q));
+    return owner ?? null;
+  }
+
+  /** Keeps the ball at its owner's feet, in front of them. */
+  controlBall() {
+    const b = this.ball, cfg = CONFIG.dribble, owner = this.ballOwner();
     if (!owner) return;
     const hold = owner.r + b.r + cfg.controlGap;
     const [pullX, pullY] = clampMagnitude(
