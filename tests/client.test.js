@@ -4,6 +4,7 @@ import { CONFIG } from '../src/config.js';
 import { EffectWatcher } from '../src/audio/effect-watcher.js';
 import { Controller } from '../src/input/controller.js';
 import { KeyboardSource } from '../src/input/keyboard-source.js';
+import { Confetti } from '../src/render/confetti.js';
 import { Smoother } from '../src/render/smoother.js';
 import { Profile } from '../src/ui/profile.js';
 
@@ -51,14 +52,14 @@ test('Smoother eases small moves and snaps big jumps', () => {
 
 test('EffectWatcher plays the right sounds on changes', () => {
   const played = [];
-  const sfx = { kick: () => played.push('kick'), goal: () => played.push('goal'), whistle: (n = 1) => played.push(`whistle${n}`) };
+  const sfx = { kick: () => played.push('kick'), goal: (s) => played.push(`goal${s.sc.join('-')}`), whistle: (n = 1) => played.push(`whistle${n}`) };
   const fx = new EffectWatcher(sfx);
   fx.observe(state({ ph: 'countdown' }));
   fx.observe(state({ ph: 'play' }));
   fx.observe(state({ kc: 1 }));
   fx.observe(state({ kc: 1, sc: [1, 0], ph: 'goal' }));
   fx.observe(state({ kc: 1, sc: [1, 0], ph: 'end' }));
-  assert.deepEqual(played, ['whistle1', 'kick', 'goal', `whistle${CONFIG.sound.endWhistles}`]);
+  assert.deepEqual(played, ['whistle1', 'kick', 'goal1-0', `whistle${CONFIG.sound.endWhistles}`]);
 });
 
 test('Profile round-trips and falls back on bad data', () => {
@@ -69,4 +70,14 @@ test('Profile round-trips and falls back on bad data', () => {
   assert.deepEqual(Profile.load(storage), { name: 'Ali', color: CONFIG.colors[2], minutes: 5 });
   store.set(CONFIG.storageKey, '{broken');
   assert.equal(Profile.load(storage).minutes, CONFIG.match.defaultDuration);
+});
+
+test('Confetti bursts, falls and disappears after its lifetime', () => {
+  const confetti = new Confetti(() => 0.5);
+  confetti.burst(100, 100, CONFIG.colors[0]);
+  assert.equal(confetti.pieces.length, CONFIG.confetti.count);
+  confetti.step(0.1);
+  assert.ok(confetti.pieces[0].y < 100, 'thrown upward first');
+  confetti.step(CONFIG.confetti.life);
+  assert.equal(confetti.pieces.length, 0);
 });

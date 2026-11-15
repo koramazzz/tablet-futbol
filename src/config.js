@@ -21,6 +21,7 @@ export const CONFIG = Object.freeze({
   colors: ['#ef4444', '#3b82f6', '#facc15', '#a855f7', '#f97316', '#1f2937', '#ec4899', '#14b8a6'],
   defaultNames: ['Oyuncu 1', 'Oyuncu 2'],
   pitchColors: { stands: '#0b3d1f', grassA: '#2f9e44', grassB: '#2b8a3e', line: 'rgba(255,255,255,.85)', you: '#fde047' },
+  confetti: { count: 90, minSpeed: 250, maxSpeed: 750, gravity: 900, life: 1.8, size: 14, extraColors: ['#ffffff', '#fde047'] },
   sound: {
     kick: [{ freq: 220, to: 60, dur: 0.12, type: 'triangle', vol: 0.35 }],
     whistle: { freq: 2300, to: 2100, dur: 0.25, type: 'square', vol: 0.05, gap: 0.32 },

@@ -6,6 +6,7 @@ import { KeyboardSource } from './input/keyboard-source.js';
 import { PointerRouter } from './input/pointer-router.js';
 import { buildTouchPads } from './input/layouts.js';
 import { isNetworkAvailable, PeerLink } from './net/peer-link.js';
+import { Confetti } from './render/confetti.js';
 import { Renderer } from './render/renderer.js';
 import { Smoother } from './render/smoother.js';
 import { GuestSession } from './sessions/guest-session.js';
@@ -21,7 +22,12 @@ export class App {
     this.renderer = new Renderer(canvas);
     this.router = new PointerRouter(canvas);
     this.sfx = new Sfx();
-    this.effects = new EffectWatcher(this.sfx);
+    this.confetti = new Confetti();
+    this.effects = new EffectWatcher({
+      kick: () => this.sfx.kick(),
+      whistle: (times) => this.sfx.whistle(times),
+      goal: (state) => this.celebrate(state),
+    });
     this.smoother = new Smoother(Infinity);
     this.session = null;
     this.view = {};
@@ -37,6 +43,12 @@ export class App {
     this.sfx.unlock();
     const el = document.documentElement;
     if (!document.fullscreenElement && el.requestFullscreen) el.requestFullscreen().catch(() => {});
+  }
+
+  celebrate(state) {
+    this.sfx.goal();
+    const color = state.tm[state.lg]?.c ?? CONFIG.pitchColors.you;
+    this.confetti.burst(this.renderer.W / 2, this.renderer.H / 2, color);
   }
 
   controllerFor(pad, keyMaps, invert = false) {
@@ -99,6 +111,7 @@ export class App {
     this.router.setControls([]);
     this.renderer.flip = false;
     this.smoother.reset();
+    this.confetti.clear();
     document.body.classList.remove('playing');
   }
 
@@ -142,6 +155,8 @@ export class App {
       notice: playing ? this.view.notice : null,
       controls: playing ? this.router.controls : [],
     });
+    this.confetti.step(dt);
+    this.confetti.draw(this.renderer.ctx);
     requestAnimationFrame((t) => this.loop(t));
   }
 }
