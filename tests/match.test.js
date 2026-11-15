@@ -145,6 +145,17 @@ test('pushing the ball into a corner never scores', () => {
   }
 });
 
+test('a ball pressed into a corner can be carried out again', () => {
+  const m = toPlay(newMatch());
+  const p = m.players[0];
+  Object.assign(p, { x: 80, y: h - 80 });
+  rollBall(m, 40, h - 40, 0, 0);
+  run(m, 1.5, [{ x: -1, y: 1, kick: false }, IDLE]);
+  assert.ok(m.ballDistance(p) >= p.r + m.ball.r - 1, 'ball is not under the player');
+  run(m, 1, [{ x: 1, y: -1, kick: false }, IDLE]);
+  assert.ok(m.ball.x > 150 && m.ball.y < h - 150, 'ball left the corner with the player');
+});
+
 test('ball bounces off the side lines', () => {
   const m = toPlay(newMatch());
   rollBall(m, w / 2, 30, 0, -900);

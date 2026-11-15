@@ -82,6 +82,7 @@ export class Match {
     this.controlBall();
     keepers.forEach((k, t) => { this.keeperKick(k, t); this.collideBall(k); });
     this.moveBall(h);
+    players.forEach(p => pushApart(p, this.ball, 1));
     if (this.phase === 'play') this.checkGoal();
   }
 
@@ -95,8 +96,11 @@ export class Match {
     const k = Math.min(1, cfg.accel * h);
     p.vx += (dx * speed - p.vx) * k;
     p.vy += (dy * speed - p.vy) * k;
-    p.x = clamp(p.x + p.vx * h, p.r, w - p.r);
-    p.y = clamp(p.y + p.vy * h, p.r, H - p.r);
+    const x = p.x + p.vx * h, y = p.y + p.vy * h;
+    p.x = clamp(x, p.r, w - p.r);
+    p.y = clamp(y, p.r, H - p.r);
+    if (p.x !== x) p.vx = 0;
+    if (p.y !== y) p.vy = 0;
     p.kickBuffer -= h;
     p.cooldown -= h;
     p.dashTime -= h;
