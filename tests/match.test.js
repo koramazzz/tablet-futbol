@@ -4,7 +4,7 @@ import { CONFIG } from '../src/config.js';
 import { Match, keeperLineX } from '../src/core/match.js';
 
 const TEAMS = [{ name: 'Ali', color: CONFIG.colors[0] }, { name: 'Ayşe', color: CONFIG.colors[1] }];
-const IDLE = { x: 0, y: 0, kick: null, dash: false };
+const IDLE = { x: 0, y: 0, kick: null };
 const FRAME = 1 / 60;
 const { w, h } = CONFIG.field;
 
@@ -83,24 +83,15 @@ test('kicking far from the ball does nothing', () => {
   assert.equal(m.kicks, kicks);
 });
 
-test('dashing gives a burst of speed, limited by a cooldown', () => {
+test('kicking away from the ball starts a dash, limited by a cooldown', () => {
   const m = toPlay(newMatch());
   const p = m.players[1];
-  const dash = { ...IDLE, dash: true };
-  m.advance(FRAME, [IDLE, dash]);
+  const dashSpeed = CONFIG.player.speed * CONFIG.dash.boost;
+  m.advance(FRAME, [IDLE, { x: 0, y: 0, kick: 1 }]);
   assert.ok(Math.abs(p.vx) > CONFIG.player.speed, 'faster than running');
   run(m, CONFIG.dash.duration * 2);
-  m.advance(FRAME, [IDLE, dash]);
-  assert.ok(Math.abs(p.vx) < CONFIG.player.speed * 0.5, 'second dash is blocked by the cooldown');
-  run(m, CONFIG.dash.cooldown);
-  m.advance(FRAME, [IDLE, dash]);
-  assert.ok(Math.abs(p.vx) > CONFIG.player.speed, 'available again after the cooldown');
-});
-
-test('kicking away from the ball does not dash', () => {
-  const m = toPlay(newMatch());
-  m.advance(FRAME, [IDLE, { ...IDLE, kick: 1 }]);
-  assert.equal(m.players[1].vx, 0);
+  m.advance(FRAME, [IDLE, { x: 0, y: 0, kick: 1 }]);
+  assert.ok(Math.abs(p.vx) < dashSpeed * 0.5, 'second dash is blocked by the cooldown');
 });
 
 test('a kick pressed slightly early is still taken (input buffer)', () => {

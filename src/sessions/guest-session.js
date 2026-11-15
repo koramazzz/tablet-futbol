@@ -8,7 +8,7 @@ const INPUT_DIGITS = 2;
 /**
  * Sends this tablet's input to the host and shows the host's snapshots.
  * The guest plays team 1 and sees the pitch rotated, so it attacks to the right too.
- * Kicks, dashes and rematch requests are counters (a kick also carries its power), so a dropped message loses nothing.
+ * Kicks and rematch requests are counters (a kick also carries its power), so a dropped message loses nothing.
  */
 export class GuestSession extends Session {
   constructor(link, profile, controller) {
@@ -16,7 +16,6 @@ export class GuestSession extends Session {
     this.profile = profile;
     this.kicks = 0;
     this.kickPower = 0;
-    this.dashes = 0;
     this.rematches = 0;
   }
 
@@ -26,10 +25,9 @@ export class GuestSession extends Session {
       this.kicks++;
       this.kickPower = input.kick;
     }
-    if (input.dash) this.dashes++;
     this.link.send({
       pv: CONFIG.net.protocol, name: this.profile.name, color: this.profile.color,
-      ix: round(input.x, INPUT_DIGITS), iy: round(input.y, INPUT_DIGITS), k: this.kicks, kp: round(this.kickPower, INPUT_DIGITS), d: this.dashes, rm: this.rematches,
+      ix: round(input.x, INPUT_DIGITS), iy: round(input.y, INPUT_DIGITS), k: this.kicks, kp: round(this.kickPower, INPUT_DIGITS), rm: this.rematches,
     });
     if (!this.link.isOpen) return { error: CONFIG.text.connectionLost };
     const s = this.link.latest;

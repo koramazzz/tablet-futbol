@@ -1,6 +1,5 @@
 import { CONFIG } from '../config.js';
 import { clampMagnitude } from '../core/utils.js';
-import { NO_INPUT } from './input.js';
 
 /** Floating thumbstick: appears where the finger lands inside its zone. */
 export class Joystick {
@@ -32,7 +31,7 @@ export class Joystick {
 
   up() { this.reset(); }
 
-  read() { return { ...NO_INPUT, x: this.vec[0], y: this.vec[1] }; }
+  read() { return { x: this.vec[0], y: this.vec[1], kick: null }; }
 
   draw(ctx) {
     const { joyRadius, knobRadius } = CONFIG.touch;

@@ -11,13 +11,12 @@ Kurulum, hesap ya da sunucu gerekmez: GitHub Pages'te çalışan statik bir web 
 4. Diğeri **Odaya Katıl**'a basıp kodu girer. Geri sayımla maç başlar.
 
 - Ekranın sol yarısına dokunup kaydırınca oyuncu hareket eder. Top, yanına gelen oyuncunun ayağına yapışır.
-- Ekranın sağ yarısına dokunmak **ŞUT**: top ayağındaysa baktığın yöne vurur.
+- Ekranın sağ yarısına dokunmak **ŞUT**: top ayağındaysa baktığın yöne vurur, değilse kısa bir atılma yapar.
   Kısa dokunuş hafif pas, basılı tutup bırakmak sert şuttur; düğmenin etrafındaki halka gücü gösterir.
-- **DEPAR** düğmesi baktığın yöne kısa bir hız patlaması yaptırır; top kovalamak ve kapmak için.
 - Her iki tablette de kendi kalen solda görünür; hep sağa doğru hücum edersin.
 - Her takımın otomatik bir kalecisi vardır.
 - **Aynı Tablette Oyna**: iki kişi tek tabletin iki ucundan oynar.
-- Bilgisayarda: WASD + Boşluk + Sol Shift (1. oyuncu), yön tuşları + Enter + Sağ Shift (2. oyuncu).
+- Bilgisayarda: WASD + Boşluk (1. oyuncu), yön tuşları + Enter (2. oyuncu).
 
 ## Nasıl çalışır
 
