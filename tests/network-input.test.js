@@ -29,10 +29,7 @@ test('sanitizeState fixes untrusted names, colours and numbers', () => {
 });
 
 test('guestInput clamps hostile values', () => {
-  assert.deepEqual(guestInput({ ix: 'a', iy: null }, false), { x: 0, y: 0, kick: null });
-  assert.equal(guestInput({ kp: 0.3 }, true).kick, 0.3);
-  assert.equal(guestInput({ kp: 99 }, true).kick, 1);
-  assert.equal(guestInput({ kp: 'x' }, true).kick, 1);
+  assert.deepEqual(guestInput({ ix: 'a', iy: null }, false), { x: 0, y: 0, kick: false });
   const { x, y } = guestInput({ ix: 99, iy: 99 }, true);
   assert.ok(Math.hypot(x, y) <= 1 + 1e-9);
 });

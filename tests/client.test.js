@@ -2,21 +2,19 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { CONFIG } from '../src/config.js';
 import { EffectWatcher } from '../src/audio/effect-watcher.js';
-import { Charge } from '../src/input/charge.js';
 import { Controller } from '../src/input/controller.js';
 import { KeyboardSource } from '../src/input/keyboard-source.js';
-import { KickButton } from '../src/input/kick-button.js';
 import { Confetti } from '../src/render/confetti.js';
 import { Smoother } from '../src/render/smoother.js';
 import { Profile } from '../src/ui/profile.js';
 
-const source = (x, y, kick = null) => ({ read: () => ({ x, y, kick }) });
+const source = (x, y, kick = false) => ({ read: () => ({ x, y, kick }) });
 const state = (overrides = {}) => ({ ph: 'play', sc: [0, 0], kc: 0, b: [0, 0], p: [[0, 0, 1, 0], [10, 0, -1, 0]], g: [[0, 0], [0, 0]], ...overrides });
 
 test('Controller merges sources and limits the stick to length 1', () => {
-  const r = new Controller([source(1, 0), source(0, 1, 0.4)]).read();
+  const r = new Controller([source(1, 0), source(0, 1, true)]).read();
   assert.ok(Math.abs(Math.hypot(r.x, r.y) - 1) < 1e-9);
-  assert.equal(r.kick, 0.4);
+  assert.equal(r.kick, true);
 });
 
 test('Controller inverts direction for the rotated guest view', () => {
@@ -24,51 +22,18 @@ test('Controller inverts direction for the rotated guest view', () => {
   assert.deepEqual([r.x, r.y], [-0.5, 0.5]);
 });
 
-const fakeClock = () => {
-  const clock = { ms: 0 };
-  return { clock, charge: new Charge(() => clock.ms) };
-};
-const CHARGE_MS = CONFIG.kick.chargeTime * 1000;
-
-test('Charge grows with hold time up to 1', () => {
-  const { clock, charge } = fakeClock();
-  assert.equal(charge.level, 0);
-  charge.press();
-  clock.ms = CHARGE_MS / 2;
-  assert.ok(Math.abs(charge.level - 0.5) < 1e-9);
-  clock.ms = CHARGE_MS * 3;
-  assert.equal(charge.release(), 1);
-  assert.equal(charge.active, false);
-});
-
-test('KeyboardSource reads held keys and shoots on release with the charged power', () => {
+test('KeyboardSource reads held keys and one kick per press', () => {
   const target = new EventTarget();
-  const { clock, charge } = fakeClock();
-  const keys = new KeyboardSource(CONFIG.keys[0], target, charge);
+  const keys = new KeyboardSource(CONFIG.keys[0], target);
   const press = (type, code, repeat = false) => target.dispatchEvent(Object.assign(new Event(type), { code, repeat }));
   press('keydown', 'KeyD');
   press('keydown', 'Space');
-  assert.deepEqual(keys.read(), { x: 1, y: 0, kick: null });
-  clock.ms = CHARGE_MS / 2;
+  assert.deepEqual(keys.read(), { x: 1, y: 0, kick: true });
   press('keydown', 'Space', true);
-  press('keyup', 'Space');
-  assert.ok(Math.abs(keys.read().kick - 0.5) < 1e-9);
-  assert.equal(keys.read().kick, null);
+  assert.equal(keys.read().kick, false);
   press('keyup', 'KeyD');
   assert.equal(keys.read().x, 0);
   keys.dispose();
-});
-
-test('KickButton charges while held and kicks once on release', () => {
-  const { clock, charge } = fakeClock();
-  const button = new KickButton(() => true, () => [0, 0], charge);
-  button.down();
-  assert.equal(button.claims(0, 0), false, 'a second finger is ignored while charging');
-  assert.equal(button.read().kick, null);
-  clock.ms = CHARGE_MS;
-  button.up();
-  assert.equal(button.read().kick, 1);
-  assert.equal(button.read().kick, null);
 });
 
 test('Smoother passes through when rate is infinite', () => {

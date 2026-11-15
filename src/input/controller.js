@@ -1,7 +1,7 @@
 import { clampMagnitude } from '../core/utils.js';
 
 /**
- * Merges several input sources into one {x, y, kick}; kick is null or a shot power from 0 to 1.
+ * Merges several input sources into one {x, y, kick}.
  * `invert` mirrors the direction for a player who sees the pitch rotated 180°.
  */
 export class Controller {
@@ -15,12 +15,12 @@ export class Controller {
   }
 
   read() {
-    let x = 0, y = 0, kick = null;
+    let x = 0, y = 0, kick = false;
     for (const source of this.sources) {
       const r = source.read();
       x += r.x;
       y += r.y;
-      kick = kick ?? r.kick;
+      kick = kick || r.kick;
     }
     [x, y] = clampMagnitude(x, y);
     const sign = this.invert ? -1 : 1;

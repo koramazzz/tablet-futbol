@@ -4,10 +4,10 @@ import { clamp, clampMagnitude, cleanName, finiteOr, otherColor, safeColor } fro
 import { Session } from './session.js';
 
 /** Reads the guest's latest message as a match input. Untrusted, so everything is clamped. */
-export function guestInput(msg, kicked) {
+export function guestInput(msg, kick) {
   const axis = (v) => clamp(finiteOr(v, 0), -1, 1);
   const [x, y] = clampMagnitude(axis(msg.ix), axis(msg.iy));
-  return { x, y, kick: kicked ? clamp(finiteOr(msg.kp, 1), 0, 1) : null };
+  return { x, y, kick };
 }
 
 /** Picks the guest's team identity, never sharing the host's colour. */
@@ -43,13 +43,13 @@ export class HostSession extends Session {
     if (!msg) return this.match ? { state: this.match.snapshot(), notice: CONFIG.text.waitingGuest } : { waiting: true };
 
     this.match ??= new Match([this.profile, guestTeam(msg, this.profile.color)], this.profile.minutes);
-    const kicked = msg.k !== this.lastKick;
+    const kick = msg.k !== this.lastKick;
     this.lastKick = msg.k;
     if (msg.rm !== this.lastRematch) {
       this.lastRematch = msg.rm;
       if (this.match.phase === 'end') this.match.restart();
     }
-    this.match.advance(dt, [this.controllers[0].read(), guestInput(msg, kicked)]);
+    this.match.advance(dt, [this.controllers[0].read(), guestInput(msg, kick)]);
     const state = this.match.snapshot();
     this.link.send(state);
     return { state };

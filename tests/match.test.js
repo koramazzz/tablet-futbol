@@ -4,7 +4,7 @@ import { CONFIG } from '../src/config.js';
 import { Match, keeperLineX } from '../src/core/match.js';
 
 const TEAMS = [{ name: 'Ali', color: CONFIG.colors[0] }, { name: 'Ayşe', color: CONFIG.colors[1] }];
-const IDLE = { x: 0, y: 0, kick: null };
+const IDLE = { x: 0, y: 0, kick: false };
 const FRAME = 1 / 60;
 const { w, h } = CONFIG.field;
 
@@ -27,7 +27,7 @@ test('starts with a countdown and both players on their own half', () => {
 test('players are frozen during the countdown and the clock does not run', () => {
   const m = newMatch();
   const x = m.players[0].x;
-  m.advance(1, [{ x: 1, y: 0, kick: null }, IDLE]);
+  m.advance(1, [{ x: 1, y: 0, kick: false }, IDLE]);
   assert.equal(m.players[0].x, x);
   assert.equal(m.timeLeft, m.duration);
 });
@@ -39,13 +39,13 @@ test('countdown turns into play', () => {
 test('a player moves in the joystick direction', () => {
   const m = toPlay(newMatch());
   const x = m.players[0].x;
-  run(m, 0.5, [{ x: 1, y: 0, kick: null }, IDLE]);
+  run(m, 0.5, [{ x: 1, y: 0, kick: false }, IDLE]);
   assert.ok(m.players[0].x > x);
 });
 
 test('players stay inside the pitch', () => {
   const m = toPlay(newMatch());
-  run(m, 5, [{ x: -1, y: -1, kick: null }, { x: 1, y: 1, kick: null }]);
+  run(m, 5, [{ x: -1, y: -1, kick: false }, { x: 1, y: 1, kick: false }]);
   const [a, b] = m.players;
   assert.ok(a.x >= a.r && a.y >= a.r);
   assert.ok(b.x <= w - b.r && b.y <= h - b.r);
@@ -56,30 +56,15 @@ test('kicking near the ball launches it in the facing direction', () => {
   const p = m.players[0];
   Object.assign(p, { x: m.ball.x - p.r - m.ball.r - 2, y: m.ball.y, fx: 1, fy: 0 });
   const kicks = m.kicks;
-  m.advance(FRAME, [{ x: 0, y: 0, kick: 1 }, IDLE]);
+  m.advance(FRAME, [{ x: 0, y: 0, kick: true }, IDLE]);
   assert.equal(m.kicks, kicks + 1);
-  assert.ok(m.ball.vx > CONFIG.kick.maxPower * 0.5);
-});
-
-test('shot power follows the charge level', () => {
-  const shoot = (power) => {
-    const m = toPlay(newMatch());
-    const p = m.players[0];
-    Object.assign(p, { x: m.ball.x - p.r - m.ball.r - 2, y: m.ball.y, fx: 1, fy: 0 });
-    m.advance(CONFIG.physicsStep, [{ x: 0, y: 0, kick: power }, IDLE]);
-    return Math.hypot(m.ball.vx, m.ball.vy);
-  };
-  const near = (a, b) => Math.abs(a - b) < b * 0.05;
-  assert.ok(near(shoot(0), CONFIG.kick.minPower));
-  assert.ok(near(shoot(1), CONFIG.kick.maxPower));
-  assert.ok(shoot(0.5) > shoot(0) && shoot(0.5) < shoot(1));
-  assert.ok(near(shoot(7), CONFIG.kick.maxPower), 'power above 1 is clamped');
+  assert.ok(m.ball.vx > CONFIG.kick.power * 0.5);
 });
 
 test('kicking far from the ball does nothing', () => {
   const m = toPlay(newMatch());
   const kicks = m.kicks;
-  m.advance(FRAME, [{ x: 0, y: 0, kick: 1 }, IDLE]);
+  m.advance(FRAME, [{ x: 0, y: 0, kick: true }, IDLE]);
   assert.equal(m.kicks, kicks);
 });
 
@@ -87,10 +72,10 @@ test('kicking away from the ball starts a dash, limited by a cooldown', () => {
   const m = toPlay(newMatch());
   const p = m.players[1];
   const dashSpeed = CONFIG.player.speed * CONFIG.dash.boost;
-  m.advance(FRAME, [IDLE, { x: 0, y: 0, kick: 1 }]);
+  m.advance(FRAME, [IDLE, { x: 0, y: 0, kick: true }]);
   assert.ok(Math.abs(p.vx) > CONFIG.player.speed, 'faster than running');
   run(m, CONFIG.dash.duration * 2);
-  m.advance(FRAME, [IDLE, { x: 0, y: 0, kick: 1 }]);
+  m.advance(FRAME, [IDLE, { x: 0, y: 0, kick: true }]);
   assert.ok(Math.abs(p.vx) < dashSpeed * 0.5, 'second dash is blocked by the cooldown');
 });
 
@@ -98,8 +83,8 @@ test('a kick pressed slightly early is still taken (input buffer)', () => {
   const m = toPlay(newMatch());
   const p = m.players[0];
   Object.assign(p, { x: m.ball.x - 80, y: m.ball.y, fx: 1, fy: 0 });
-  m.advance(FRAME, [{ x: 1, y: 0, kick: 1 }, IDLE]);
-  run(m, CONFIG.kick.buffer * 0.9, [{ x: 1, y: 0, kick: null }, IDLE]);
+  m.advance(FRAME, [{ x: 1, y: 0, kick: true }, IDLE]);
+  run(m, CONFIG.kick.buffer * 0.9, [{ x: 1, y: 0, kick: false }, IDLE]);
   assert.ok(m.kicks >= 1);
 });
 
@@ -107,7 +92,7 @@ test('a player carries the ball in front while running', () => {
   const m = toPlay(newMatch());
   const p = m.players[0];
   Object.assign(p, { x: m.ball.x - p.r - m.ball.r - 2, y: m.ball.y });
-  run(m, 0.6, [{ x: 0, y: 1, kick: null }, IDLE]);
+  run(m, 0.6, [{ x: 0, y: 1, kick: false }, IDLE]);
   const hold = p.r + m.ball.r + CONFIG.dribble.controlGap;
   assert.ok(Math.abs(m.ball.x - p.x) < 6, 'ball swung in front of the new direction');
   assert.ok(Math.abs(m.ball.y - (p.y + hold)) < 6, 'ball stays at the feet');
@@ -154,7 +139,7 @@ test('pushing the ball into a corner never scores', () => {
     const cornerY = dirY < 0 ? 0 : h;
     Object.assign(m.players[0], { x: w - 90, y: cornerY - dirY * 70 });
     rollBall(m, w - 45, cornerY - dirY * 35, 0, 0);
-    run(m, 2, [{ x: dirX, y: dirY, kick: null }, IDLE]);
+    run(m, 2, [{ x: dirX, y: dirY, kick: false }, IDLE]);
     assert.deepEqual(m.score, [0, 0]);
     assert.ok(m.ball.x <= w, 'ball stays on the pitch');
   }
@@ -189,7 +174,7 @@ test('nothing moves after the match has ended', () => {
   const m = toPlay(newMatch(2));
   run(m, 2 * 60 + 1);
   const snap = JSON.stringify(m.snapshot());
-  run(m, 1, [{ x: 1, y: 1, kick: 1 }, IDLE]);
+  run(m, 1, [{ x: 1, y: 1, kick: true }, IDLE]);
   assert.equal(JSON.stringify(m.snapshot()), snap);
 });
 
